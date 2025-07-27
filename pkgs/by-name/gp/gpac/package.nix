@@ -65,34 +65,33 @@ stdenv.mkDerivation rec {
   ];
 
   # ref: https://wiki.gpac.io/Build/build/GPAC-Build-Guide-for-Linux/#gpac-easy-build-recommended-for-most-users
-  buildInputs =
-    [
-      zlib
-    ]
-    ++ lib.optionals withFullDeps [
-      freetype
-      libjpeg
-      libpng
-      libmad
-      faad2
-      libogg
-      libvorbis
-      libtheora
-      a52dec
-      nghttp2
-      openjpeg
-      libcaca
-      libXv
-      mesa
-      mesa_glu
-      xvidcore
-      openssl
-      jack2
-      alsa-lib
-      pulseaudio
-      SDL2
-      curl
-    ];
+  buildInputs = [
+    zlib
+  ]
+  ++ lib.optionals withFullDeps [
+    freetype
+    libjpeg
+    libpng
+    libmad
+    faad2
+    libogg
+    libvorbis
+    libtheora
+    a52dec
+    nghttp2
+    openjpeg
+    libcaca
+    libXv
+    mesa
+    mesa_glu
+    xvidcore
+    openssl
+    jack2
+    alsa-lib
+    pulseaudio
+    SDL2
+    curl
+  ];
 
   enableParallelBuilding = true;
 
