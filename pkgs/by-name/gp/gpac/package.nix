@@ -54,16 +54,15 @@ stdenv.mkDerivation rec {
         hash = "sha256-RADDqc5RxNV2EfRTzJP/yz66p0riyn81zvwU3r9xncM=";
       };
 
-  nativeBuildInputs =
-    [
-      pkg-config
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      cctools
-    ]
-    ++ lib.optionals withFfmpeg [
-      ffmpeg
-    ];
+  nativeBuildInputs = [
+    pkg-config
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    cctools
+  ]
+  ++ lib.optionals withFfmpeg [
+    ffmpeg
+  ];
 
   # ref: https://wiki.gpac.io/Build/build/GPAC-Build-Guide-for-Linux/#gpac-easy-build-recommended-for-most-users
   buildInputs =
