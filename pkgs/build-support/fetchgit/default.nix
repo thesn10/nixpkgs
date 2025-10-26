@@ -1,6 +1,8 @@
 {
+  config,
   lib,
   stdenvNoCC,
+  writeText,
   git,
   git-lfs,
   cacert,
@@ -8,12 +10,16 @@
 
 let
   urlToName =
-    url: rev:
+    {
+      url,
+      rev,
+      append,
+    }:
     let
       shortRev = lib.sources.shortRev rev;
       appendShort = lib.optionalString ((builtins.match "[a-f0-9]*" rev) != null) "-${shortRev}";
     in
-    "${lib.sources.urlToName url}${appendShort}";
+    "${lib.sources.urlToName url}${if append == "" then appendShort else append}";
 in
 
 lib.makeOverridable (
@@ -24,15 +30,20 @@ lib.makeOverridable (
       url,
       tag ? null,
       rev ? null,
-      name ? urlToName url (lib.revOrTag rev tag),
+      name ? urlToName {
+        inherit url;
+        rev = lib.revOrTag rev tag;
+        # when rootDir is specified, avoid invalidating the result when rev changes
+        append = if rootDir != "" then "-${lib.strings.sanitizeDerivationName rootDir}" else "";
+      },
       leaveDotGit ? deepClone || fetchTags,
       outputHash ? lib.fakeHash,
       outputHashAlgo ? null,
       fetchSubmodules ? true,
       deepClone ? false,
       branchName ? null,
-      sparseCheckout ? [ ],
-      nonConeMode ? false,
+      sparseCheckout ? lib.optional (rootDir != "") rootDir,
+      nonConeMode ? rootDir != "",
       nativeBuildInputs ? [ ],
       # Shell code executed before the file has been fetched.  This, in
       # particular, can do things like set NIX_PREFETCH_GIT_CHECKOUT_HOOK to
@@ -53,6 +64,10 @@ lib.makeOverridable (
       allowedRequisites ? null,
       # fetch all tags after tree (useful for git describe)
       fetchTags ? false,
+      # make this subdirectory the root of the result
+      rootDir ? "",
+      # GIT_CONFIG_GLOBAL (as a file)
+      gitConfigFile ? config.gitConfigFile,
     }:
 
     /*
@@ -80,6 +95,7 @@ lib.makeOverridable (
 
     assert nonConeMode -> (sparseCheckout != [ ]);
     assert fetchTags -> leaveDotGit;
+    assert rootDir != "" -> !leaveDotGit;
 
     let
       revWithTag =
@@ -135,6 +151,8 @@ lib.makeOverridable (
           preFetch
           postFetch
           fetchTags
+          rootDir
+          gitConfigFile
           ;
         rev = revWithTag;
 

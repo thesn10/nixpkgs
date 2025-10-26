@@ -24,14 +24,14 @@
 
 buildPythonPackage rec {
   pname = "pyscf";
-  version = "2.10.0";
+  version = "2.11.0";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "pyscf";
     repo = "pyscf";
     tag = "v${version}";
-    hash = "sha256-lFYSWCe5THlivpBB6nFBR2zfCIKJ0YJeuY2rCKoXUq8=";
+    hash = "sha256-JqjZn4EL6P7qS9PJ/wV6+FniEUeCB/f271nczVH5VuQ=";
   };
 
   # setup.py calls Cmake and passes the arguments in CMAKE_CONFIGURE_ARGS to cmake.
@@ -101,9 +101,6 @@ buildPythonPackage rec {
   disabledTestPaths = [
     "pyscf/pbc/tdscf"
     "pyscf/pbc/gw"
-    "*_slow.*py"
-    "*_kproxy_.*py"
-    "test_proxy.py"
     "pyscf/nac/test/test_sacasscf.py"
     "pyscf/grad/test/test_casscf.py"
   ];

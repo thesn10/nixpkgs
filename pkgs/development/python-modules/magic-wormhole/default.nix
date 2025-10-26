@@ -31,8 +31,9 @@
   # tests
   net-tools,
   unixtools,
-  magic-wormhole-transit-relay,
+  hypothesis,
   magic-wormhole-mailbox-server,
+  magic-wormhole-transit-relay,
   pytestCheckHook,
   pytest-twisted,
 
@@ -41,14 +42,14 @@
 
 buildPythonPackage rec {
   pname = "magic-wormhole";
-  version = "0.19.2";
+  version = "0.21.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "magic-wormhole";
     repo = "magic-wormhole";
     tag = version;
-    hash = "sha256-5Tipcood5RktXY05p20hQpWhSMMnZm67I4iybjV8TcA=";
+    hash = "sha256-gsNdV6JvxsdlyPOSn07nTrvU4ju+3si3SQhyN8ZX/ac=";
   };
 
   postPatch =
@@ -96,6 +97,7 @@ buildPythonPackage rec {
   ];
 
   nativeCheckInputs = [
+    hypothesis
     magic-wormhole-mailbox-server
     magic-wormhole-transit-relay
     pytestCheckHook
@@ -104,16 +106,17 @@ buildPythonPackage rec {
   ++ optional-dependencies.dilation
   ++ lib.optionals stdenv.hostPlatform.isDarwin [ unixtools.locale ];
 
-  enabledTestPaths = [ "src/wormhole/test" ];
-
   __darwinAllowLocalNetworking = true;
 
   postInstall = ''
     install -Dm644 docs/wormhole.1 $out/share/man/man1/wormhole.1
+
+    # https://github.com/magic-wormhole/magic-wormhole/issues/619
     installShellCompletion --cmd ${meta.mainProgram} \
       --bash wormhole_complete.bash \
       --fish wormhole_complete.fish \
       --zsh wormhole_complete.zsh
+    rm $out/wormhole_complete.*
   '';
 
   passthru.updateScript = gitUpdater { };

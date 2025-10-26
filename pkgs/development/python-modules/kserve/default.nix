@@ -140,6 +140,9 @@ buildPythonPackage rec {
 
     # AssertionError
     "test/test_server.py::TestTFHttpServerLoadAndUnLoad::test_unload"
+
+    # Race condition when called concurrently between two instances of the same model (i.e. in nixpkgs-review)
+    "test/test_dataplane.py::TestDataPlane::test_model_metadata[TEST_RAY_SERVE_MODEL]"
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     # RuntimeError: Failed to start GCS
@@ -158,6 +161,14 @@ buildPythonPackage rec {
   ];
 
   disabledTests = [
+    # AssertionError: assert CompletionReq...lm_xargs=None) == CompletionReq...lm_xargs=None)
+    "test_convert_params"
+
+    # Flaky: ray.exceptions.ActorDiedError: The actor died unexpectedly before finishing this task.
+    "test_explain"
+    "test_infer"
+    "test_predict"
+
     # Require network access
     "test_infer_graph_endpoint"
     "test_infer_path_based_routing"

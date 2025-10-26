@@ -2,23 +2,26 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
+  nixosTests,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "local-content-share";
-  version = "31";
+  version = "35";
 
   src = fetchFromGitHub {
     owner = "Tanq16";
     repo = "local-content-share";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-BVO804Ndjbg4uEE1bufZcGZxEVdraV29LJ6yBWXTakA=";
+    hash = "sha256-pFYkq1QqGugOVT0uMPC11ChXtxMwGv4JZKGWIqK7y3s=";
   };
 
   vendorHash = null;
 
   # no test file in upstream
   doCheck = false;
+
+  passthru.tests.nixos = nixosTests.local-content-share;
 
   meta = {
     description = "Storing/sharing text/files in your local network with no setup on client devices";

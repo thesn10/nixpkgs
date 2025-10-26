@@ -10,6 +10,14 @@ In order to ensure that the needed packages are generally available without buil
 
 Run [`update-pinned.sh`](./update-pinned.sh) to update it.
 
+## GitHub specific code
+
+Some of the code is specific to GitHub.
+This code is currently spread out over multiple places and written in both Bash and JavaScript.
+The goal is to eventually have all GitHub specific code in `ci/github-script` and written in JavaScript via `actions/github-script`.
+A lot of code has already been migrated, but some Bash code still remains.
+New CI features need to be introduced in JavaScript, not Bash.
+
 ## `ci/nixpkgs-vet.sh BASE_BRANCH [REPOSITORY]`
 
 Runs the [`nixpkgs-vet` tool](https://github.com/NixOS/nixpkgs-vet) on the HEAD commit, closely matching what CI does.
@@ -36,7 +44,7 @@ For the purposes of CI, branches in the NixOS/nixpkgs repository are classified 
   - Pull Requests required.
   - Long-lived, no deletion, no force push.
 - **Secondary development** branches
-  - `staging-` prefix, `haskell-updates` and `python-updates`
+  - `staging-` prefix and `haskell-updates`
   - Pull Requests normally required, except when merging development branches into each other.
   - Long-lived, no deletion, no force push.
 - **Work-In-Progress** branches

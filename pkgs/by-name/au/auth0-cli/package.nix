@@ -8,16 +8,16 @@
 
 buildGoModule rec {
   pname = "auth0-cli";
-  version = "1.16.0";
+  version = "1.22.0";
 
   src = fetchFromGitHub {
     owner = "auth0";
     repo = "auth0-cli";
     tag = "v${version}";
-    hash = "sha256-iTtjjqONnSmOlaBHOq1SgsbNiKVSKCePg5CJfZs4r/4=";
+    hash = "sha256-y+vNIXwSNVWwR6uSyLqsk366Y558sZxK4RYG/Cres/4=";
   };
 
-  vendorHash = "sha256-e5/9AA68p1byqwUOK5/t4L3WQ/td9BYiNfFDD5NbTeU=";
+  vendorHash = "sha256-eqeicg4ZWd/oOjaULXKjI5t8+4lSl5HFG3fOaeF5zB4=";
 
   ldflags = [
     "-s"
@@ -46,6 +46,8 @@ buildGoModule rec {
   '';
 
   subPackages = [ "cmd/auth0" ];
+
+  __darwinAllowLocalNetworking = true;
 
   meta = {
     description = "Supercharge your developer workflow";

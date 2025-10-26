@@ -76,18 +76,18 @@ let
     else
       throw "Unknown UWSGI plugin ${name}, available : ${all}";
 
-  needed = builtins.map getPlugin plugins;
+  needed = map getPlugin plugins;
 in
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "uwsgi";
-  version = "2.0.30";
+  version = "2.0.31";
 
   src = fetchFromGitHub {
     owner = "unbit";
     repo = "uwsgi";
     tag = finalAttrs.version;
-    hash = "sha256-I03AshxZyxrRmtYUH1Q+B6ISykjYRMGG+ZQSHRS7vDs=";
+    hash = "sha256-WWZ+ClLWoUFi64xsiyuLXcxQsYdOv1DVhG+4oVYJJMI=";
   };
 
   patches = [
@@ -185,8 +185,6 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://uwsgi-docs.readthedocs.org/en/latest/";
     license = lib.licenses.gpl2Plus;
     maintainers = with lib.maintainers; [
-      abbradar
-      schneefux
       globin
     ];
     platforms = lib.platforms.unix;

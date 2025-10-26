@@ -1,9 +1,11 @@
 {
   lib,
+  stdenv,
   stdenvNoCC,
   buildGoModule,
   bun,
   fetchFromGitHub,
+  makeBinaryWrapper,
   models-dev,
   nix-update-script,
   testers,
@@ -11,12 +13,6 @@
 }:
 
 let
-  opencode-node-modules-hash = {
-    "aarch64-darwin" = "sha256-so+KiAo8C7olbJaCH1rIVxs/tq/g9l5pKPaU8D+Zm28=";
-    "aarch64-linux" = "sha256-JNf8g0z6oH2OXJLAmCSP0W4WX+GGyald5DAFOYCBNP0=";
-    "x86_64-darwin" = "sha256-jwmH4gEcyRNgeMvYz2SyWRagFkYN1O3ULEQIPPgqhwg=";
-    "x86_64-linux" = "sha256-ZMz7vfndYrpjUvhX8L9qv/lXcWKqXZwvfahGAE5EKYo=";
-  };
   bun-target = {
     "aarch64-darwin" = "bun-darwin-arm64";
     "aarch64-linux" = "bun-linux-arm64";
@@ -26,20 +22,21 @@ let
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "opencode";
-  version = "0.3.58";
+  version = "0.15.14";
   src = fetchFromGitHub {
     owner = "sst";
     repo = "opencode";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Zm3ydijaduPcIw5Np1+5CzNMoaASQwOT2R72/pdyUwM=";
+    hash = "sha256-K7TmsJm11uDNjN3fUaapM1A01FmHUSfXMiqOzhLzRI8=";
   };
 
   tui = buildGoModule {
     pname = "opencode-tui";
-    inherit (finalAttrs) version;
-    src = "${finalAttrs.src}/packages/tui";
+    inherit (finalAttrs) version src;
 
-    vendorHash = "sha256-8OIPFa+bl1If55YZtacyOZOqMLslbMyO9Hx0HOzmrA0=";
+    modRoot = "packages/tui";
+
+    vendorHash = "sha256-g3+2q7yRaM6BgIs5oIXz/u7B84ZMMjnxXpvFpqDePU4=";
 
     subPackages = [ "cmd/opencode" ];
 
@@ -78,13 +75,24 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     buildPhase = ''
       runHook preBuild
 
-       export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
+      export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
 
-       bun install \
-         --filter=opencode \
-         --force \
-         --frozen-lockfile \
-         --no-progress
+      # NOTE: Disabling post-install scripts with `--ignore-scripts` to avoid
+      # shebang issues
+      # NOTE: `--linker=hoisted` temporarily disables Bun's isolated installs,
+      # which became the default in Bun 1.3.0.
+      # See: https://bun.com/blog/bun-v1.3#isolated-installs-are-now-the-default-for-workspaces
+      # This workaround is required because the 'yargs' dependency is currently
+      # missing when building opencode. Remove this flag once upstream is
+      # compatible with Bun 1.3.0.
+      bun install \
+        --filter=opencode \
+        --force \
+        --frozen-lockfile \
+        --ignore-scripts \
+        --linker=hoisted \
+        --no-progress \
+        --production
 
       runHook postBuild
     '';
@@ -101,19 +109,27 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     # Required else we get errors that our fixed-output derivation references store paths
     dontFixup = true;
 
-    outputHash = opencode-node-modules-hash.${stdenvNoCC.hostPlatform.system};
+    outputHash =
+      {
+        x86_64-linux = "sha256-8pJBLNPuF7+wcUCNoI9z68q5Pl6Mvm1ZvIDianLPdHo=";
+        aarch64-linux = "sha256-zODR/4mcE4Hh3I6Yh8ExUi3WdBttrRBf00ItQ4TmVMU=";
+        x86_64-darwin = "sha256-ZJFT0qY82UK9jXVMQweXXjZ4ohZLKVJEf+CjfRkJB9E=";
+        aarch64-darwin = "sha256-0bjdbPXm2TkOEsSyqvPJnFLIzmBJt5SH40hwYutWYBY=";
+      }
+      .${stdenv.hostPlatform.system};
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
   };
 
   nativeBuildInputs = [
     bun
+    makeBinaryWrapper
     models-dev
   ];
 
   patches = [
     # Patch `packages/opencode/src/provider/models-macro.ts` to get contents of
-    # `api.json` from the file bundled with `bun build`.
+    # `_api.json` from the file bundled with `bun build`.
     ./local-models-dev.patch
   ];
 
@@ -125,19 +141,18 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postConfigure
   '';
 
-  env.MODELS_DEV_API_JSON = "${models-dev}/dist/api.json";
+  env.MODELS_DEV_API_JSON = "${models-dev}/dist/_api.json";
 
   buildPhase = ''
     runHook preBuild
 
     bun build \
+      --define OPENCODE_TUI_PATH="'${finalAttrs.tui}/bin/tui'" \
       --define OPENCODE_VERSION="'${finalAttrs.version}'" \
       --compile \
-      --minify \
       --target=${bun-target.${stdenvNoCC.hostPlatform.system}} \
       --outfile=opencode \
       ./packages/opencode/src/index.ts \
-      ${finalAttrs.tui}/bin/tui
 
     runHook postBuild
   '';
@@ -150,6 +165,15 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     install -Dm755 opencode $out/bin/opencode
 
     runHook postInstall
+  '';
+
+  # Execution of commands using bash-tool fail on linux with
+  # Error [ERR_DLOPEN_FAILED]: libstdc++.so.6: cannot open shared object file: No such
+  # file or directory
+  # Thus, we add libstdc++.so.6 manually to LD_LIBRARY_PATH
+  postFixup = ''
+    wrapProgram $out/bin/opencode \
+      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}"
   '';
 
   passthru = {

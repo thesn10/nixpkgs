@@ -7,7 +7,7 @@
   tk,
   addDriverRunpath,
 
-  apple-sdk_12,
+  apple-sdk_13,
 
   koboldLiteSupport ? true,
 
@@ -41,13 +41,13 @@ let
 in
 effectiveStdenv.mkDerivation (finalAttrs: {
   pname = "koboldcpp";
-  version = "1.96";
+  version = "1.99.4";
 
   src = fetchFromGitHub {
     owner = "LostRuins";
     repo = "koboldcpp";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-/kHx2v9g0o5eh38d9hlhc724vQNTXVpaX1GeQouJPhk=";
+    hash = "sha256-ilBrTMtY6bhns2GcwDckGq4+RqzgzBCg0HJJ4QUx8Co=";
   };
 
   enableParallelBuilding = true;
@@ -63,7 +63,7 @@ effectiveStdenv.mkDerivation (finalAttrs: {
     tk
   ]
   ++ finalAttrs.pythonInputs
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_12 ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_13 ]
   ++ lib.optionals cublasSupport [
     cudaPackages.libcublas
     cudaPackages.cuda_nvcc
@@ -88,12 +88,6 @@ effectiveStdenv.mkDerivation (finalAttrs: {
     (makeBool "LLAMA_METAL" metalSupport)
     (lib.optionals cublasSupport "CUDA_DOCKER_ARCH=${builtins.head cudaArches}")
   ];
-
-  env = {
-    # Fixes an issue where "fprintf" is being called with a format string that isn't a string literal
-    NIX_CFLAGS_COMPILE = lib.optionalString vulkanSupport "-Wno-error=format-security";
-    NIX_CXXFLAGS_COMPILE = lib.optionalString vulkanSupport "-Wno-error=format-security";
-  };
 
   installPhase = ''
     runHook preInstall
@@ -132,7 +126,7 @@ effectiveStdenv.mkDerivation (finalAttrs: {
     mainProgram = "koboldcpp";
     maintainers = with lib.maintainers; [
       maxstrid
-      donteatoreo
+      FlameFlag
     ];
     platforms = lib.platforms.unix;
   };

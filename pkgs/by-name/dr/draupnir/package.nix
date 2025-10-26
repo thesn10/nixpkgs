@@ -22,13 +22,13 @@ let
 in
 mkYarnPackage rec {
   pname = "draupnir";
-  version = "2.5.0";
+  version = "2.7.1";
 
   src = fetchFromGitHub {
     owner = "the-draupnir-project";
     repo = "Draupnir";
     tag = "v${version}";
-    hash = "sha256-au0qYS646MAXyfQTk6gJem3geTecgDwzZl+87/6VE5A=";
+    hash = "sha256-PJg+ybWe7mtLgqrBZP0xKeKWc2FPv7koyjsHyK5uRKs=";
   };
 
   nativeBuildInputs = [

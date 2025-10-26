@@ -3,8 +3,7 @@
   buildGoModule,
   fetchFromGitHub,
   buildEnv,
-  linkFarm,
-  makeWrapper,
+  makeBinaryWrapper,
   stdenv,
   addDriverRunpath,
   nix-update-script,
@@ -18,10 +17,13 @@
   cudaPackages,
   cudaArches ? cudaPackages.flags.realArches or [ ],
   autoAddDriverRunpath,
+  apple-sdk_15,
+
+  versionCheckHook,
+  writableTmpDirAsHomeHook,
 
   # passthru
   nixosTests,
-  testers,
   ollama,
   ollama-rocm,
   ollama-cuda,
@@ -116,17 +118,16 @@ in
 goBuild (finalAttrs: {
   pname = "ollama";
   # don't forget to invalidate all hashes each update
-  version = "0.9.6";
+  version = "0.12.6";
 
   src = fetchFromGitHub {
     owner = "ollama";
     repo = "ollama";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-fVbHz/Sa3aSIYBic3lNQl5iUYo+9LHIk52vO9mx6XRE=";
-    fetchSubmodules = true;
+    hash = "sha256-Ttwcpg2bgz7D8IqPRTNeZUQFA/HsGc8gCOiXRs7onBg=";
   };
 
-  vendorHash = "sha256-oHTo8EQGfrKOwg6SRPrL23qSH+p+clBxxiXsuO1auLk=";
+  vendorHash = "sha256-SlaDsu001TUW+t9WRp7LqxUSQSGDF1Lqu9M1bgILoX4=";
 
   env =
     lib.optionalAttrs enableRocm {
@@ -148,12 +149,14 @@ goBuild (finalAttrs: {
   ]
   ++ lib.optionals enableCuda [ cudaPackages.cuda_nvcc ]
   ++ lib.optionals (enableRocm || enableCuda) [
-    makeWrapper
+    makeBinaryWrapper
     autoAddDriverRunpath
   ];
 
   buildInputs =
-    lib.optionals enableRocm (rocmLibs ++ [ libdrm ]) ++ lib.optionals enableCuda cudaLibs;
+    lib.optionals enableRocm (rocmLibs ++ [ libdrm ])
+    ++ lib.optionals enableCuda cudaLibs
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_15 ];
 
   # replace inaccurate version number with actual release version
   postPatch = ''
@@ -177,7 +180,7 @@ goBuild (finalAttrs: {
         in
         if matched == null then str else builtins.head matched;
 
-      cudaArchitectures = builtins.concatStringsSep ";" (builtins.map removeSMPrefix cudaArches);
+      cudaArchitectures = builtins.concatStringsSep ";" (map removeSMPrefix cudaArches);
       rocmTargets = builtins.concatStringsSep ";" rocmGpuTargets;
 
       cmakeFlagsCudaArchitectures = lib.optionalString enableCuda "-DCMAKE_CUDA_ARCHITECTURES='${cudaArchitectures}'";
@@ -212,8 +215,6 @@ goBuild (finalAttrs: {
     '';
 
   ldflags = [
-    "-s"
-    "-w"
     "-X=github.com/ollama/ollama/version.Version=${finalAttrs.version}"
     "-X=github.com/ollama/ollama/server.mode=release"
   ];
@@ -226,13 +227,26 @@ goBuild (finalAttrs: {
     (allow iokit-open (iokit-user-client-class "AGXDeviceUserClient"))
   '';
 
+  checkFlags =
+    let
+      # Skip tests that require network access
+      skippedTests = [
+        "TestPushHandler/unauthorized_push" # Writes to $HOME, se https://github.com/ollama/ollama/pull/12307#pullrequestreview-3249128660
+      ];
+    in
+    [ "-skip=^${builtins.concatStringsSep "$|^" skippedTests}$" ];
+
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+    writableTmpDirAsHomeHook
+  ];
+  versionCheckKeepEnvironment = "HOME";
+  versionCheckProgramArg = "--version";
+
   passthru = {
     tests = {
       inherit ollama;
-      version = testers.testVersion {
-        inherit (finalAttrs) version;
-        package = ollama;
-      };
     }
     // lib.optionalAttrs stdenv.hostPlatform.isLinux {
       inherit ollama-rocm ollama-cuda;
@@ -256,7 +270,6 @@ goBuild (finalAttrs: {
     maintainers = with maintainers; [
       abysssol
       dit7ya
-      elohmeier
       prusnak
     ];
   };

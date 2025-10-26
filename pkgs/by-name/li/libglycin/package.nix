@@ -15,6 +15,8 @@
   gtk4,
   gobject-introspection,
   gnome,
+  replaceVars,
+  bubblewrap,
   common-updater-scripts,
   _experimental-update-script-combinators,
   buildPackages,
@@ -24,14 +26,14 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "libglycin";
-  version = "1.2.2";
+  version = "1.2.3";
 
   src = fetchFromGitLab {
     domain = "gitlab.gnome.org";
     owner = "GNOME";
     repo = "glycin";
     tag = finalAttrs.version;
-    hash = "sha256-K+cR+0a/zRpOvMsX1ZljjJYYOXbHkyDGE9Q9vY1qJBg=";
+    hash = "sha256-O7Z7kzC0BU7FAF1UZC6LbXVIXPDertsAUNYwHAjkzPI=";
   };
 
   nativeBuildInputs = [
@@ -49,7 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-zGDmmRbaR2boaf9lLzvW/H7xgMo9uHTmlC0oNupLUos=";
+    hash = "sha256-g2tsQ6q+sUxn3itu3IgZ5EGtDorPzhaO5B1hlEW5xzs=";
   };
 
   buildInputs = [
@@ -71,6 +73,10 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.mesonBool "vapi" withIntrospection)
     (lib.mesonBool "capi_docs" withIntrospection)
   ];
+
+  postPatch = ''
+    patch -p2 < ${finalAttrs.passthru.glycinPathsPatch}
+  '';
 
   passthru = {
     updateScript =
@@ -100,6 +106,10 @@ stdenv.mkDerivation (finalAttrs: {
         updateSource
         updateLockfile
       ];
+
+    glycinPathsPatch = replaceVars ./fix-glycin-paths.patch {
+      bwrap = "${bubblewrap}/bin/bwrap";
+    };
   };
 
   meta = {
@@ -111,6 +121,7 @@ stdenv.mkDerivation (finalAttrs: {
       lgpl21Plus
     ];
     maintainers = with lib.maintainers; [ normalcea ];
+    teams = [ lib.teams.gnome ];
     platforms = lib.platforms.linux;
     pkgConfigModules = [
       "glycin-1"

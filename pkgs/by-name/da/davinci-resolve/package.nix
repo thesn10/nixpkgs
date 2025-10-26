@@ -35,7 +35,7 @@ let
   davinci = (
     stdenv.mkDerivation rec {
       pname = "davinci-resolve${lib.optionalString studioVariant "-studio"}";
-      version = "20.0";
+      version = "20.2.2";
 
       nativeBuildInputs = [
         (appimage-run.override { buildFHSEnv = buildFHSEnvChroot; })
@@ -57,9 +57,9 @@ let
             outputHashAlgo = "sha256";
             outputHash =
               if studioVariant then
-                "sha256-q0jfP/DtroK7Dzj/BiB1JmYPihCma/OgcGmQOE/uwGY="
+                "sha256-4TpB0kFQpWLkfLFo5txe4km/TjxJ+ajYnJ28UdQvncA="
               else
-                "sha256-JM/V449KUEXuQmRpyQC2z9DRmID7hJ3Mnt5N6p/HOXA=";
+                "sha256-A70WknvKE35AI+U0drSTFpM5T7gJVf2EYtWdxaxbbA0=";
 
             impureEnvVars = lib.fetchers.proxyImpureEnvVars;
 
@@ -150,7 +150,7 @@ let
           test -e ${lib.escapeShellArg appimageName}
           appimage-run ${lib.escapeShellArg appimageName} -i -y -n -C $out
 
-          mkdir -p $out/{configs,DolbyVision,easyDCP,Fairlight,GPUCache,logs,Media,"Resolve Disk Database",.crashreport,.license,.LUT}
+          mkdir -p $out/{"Apple Immersive/Calibration",configs,DolbyVision,easyDCP,Extras,Fairlight,GPUCache,logs,Media,"Resolve Disk Database",.crashreport,.license,.LUT}
           runHook postInstall
         '';
 
@@ -186,6 +186,7 @@ let
             "Video"
             "Graphics"
           ];
+          startupWMClass = "resolve";
         })
       ];
     }
@@ -248,10 +249,12 @@ buildFHSEnv {
 
   extraPreBwrapCmds = lib.optionalString studioVariant ''
     mkdir -p ~/.local/share/DaVinciResolve/license || exit 1
+    mkdir -p ~/.local/share/DaVinciResolve/Extras || exit 1
   '';
 
   extraBwrapArgs = lib.optionals studioVariant [
-    "--bind \"$HOME\"/.local/share/DaVinciResolve/license ${davinci}/.license"
+    ''--bind "$HOME"/.local/share/DaVinciResolve/license ${davinci}/.license''
+    ''--bind "$HOME"/.local/share/DaVinciResolve/Extras ${davinci}/Extras''
   ];
 
   runScript = "${bash}/bin/bash ${writeText "davinci-wrapper" ''
@@ -269,6 +272,8 @@ buildFHSEnv {
 
   passthru = {
     inherit davinci;
+  }
+  // lib.optionalAttrs (!studioVariant) {
     updateScript = lib.getExe (writeShellApplication {
       name = "update-davinci-resolve";
       runtimeInputs = [

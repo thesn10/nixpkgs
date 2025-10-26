@@ -3,7 +3,6 @@
   python3,
   fetchFromGitHub,
   ffmpeg-headless,
-  librespot,
   nixosTests,
   replaceVars,
   providers ? [ ],
@@ -16,13 +15,13 @@ let
       music-assistant-frontend = self.callPackage ./frontend.nix { };
 
       music-assistant-models = super.music-assistant-models.overridePythonAttrs (oldAttrs: rec {
-        version = "1.1.45";
+        version = "1.1.47";
 
         src = fetchFromGitHub {
           owner = "music-assistant";
           repo = "models";
           tag = version;
-          hash = "sha256-R1KkMe9dVl5J1DjDsFhSYVebpiqBkXZSqkLrd7T8gFg=";
+          hash = "sha256-NNKF61CRBe+N9kY+JUa77ClHSJ9RhpsiheMg7Ytyq2M=";
         };
 
         postPatch = ''
@@ -48,14 +47,14 @@ assert
 
 python.pkgs.buildPythonApplication rec {
   pname = "music-assistant";
-  version = "2.5.5";
+  version = "2.6.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "music-assistant";
     repo = "server";
     tag = version;
-    hash = "sha256-v9xFUjjk7KHsUtuZjQWLtc1m3f6VOUPlQtSBtUR6Pcg=";
+    hash = "sha256-e596gvj+ZZDQzyBVfI50nO0a0eZifrkQVhUNNP2Jj8A=";
   };
 
   patches = [
@@ -63,12 +62,15 @@ python.pkgs.buildPythonApplication rec {
       ffmpeg = "${lib.getBin ffmpeg-headless}/bin/ffmpeg";
       ffprobe = "${lib.getBin ffmpeg-headless}/bin/ffprobe";
     })
-    (replaceVars ./librespot.patch {
-      librespot = lib.getExe librespot;
-    })
+
+    # Look up librespot from PATH at runtime
+    ./librespot.patch
 
     # Disable interactive dependency resolution, which clashes with the immutable Python environment
     ./dont-install-deps.patch
+
+    # Fix running the built-in snapcast server
+    ./builtin-snapcast-server.patch
   ];
 
   postPatch = ''
@@ -93,6 +95,11 @@ python.pkgs.buildPythonApplication rec {
     "pillow"
     "xmltodict"
     "zeroconf"
+  ];
+
+  pythonRemoveDeps = [
+    # no runtime dependency resolution
+    "uv"
   ];
 
   dependencies =

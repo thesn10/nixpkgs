@@ -18,13 +18,13 @@
 buildHomeAssistantComponent rec {
   owner = "blakeblackshear";
   domain = "frigate";
-  version = "5.9.3";
+  version = "5.10.0";
 
   src = fetchFromGitHub {
     owner = "blakeblackshear";
     repo = "frigate-hass-integration";
     tag = "v${version}";
-    hash = "sha256-kbhDZbyNVct0GDhIr7mKyeVIkyV+Gc/gzbKnnv1FcQg=";
+    hash = "sha256-rhYShAb251LfcrBjarcle041AWVSEi0wqc9/W1SlgUo=";
   };
 
   dependencies = [ hass-web-proxy-lib ];

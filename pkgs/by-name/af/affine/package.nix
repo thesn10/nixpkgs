@@ -4,7 +4,7 @@
   stdenvNoCC,
   fetchFromGitHub,
   rustPlatform,
-  electron_35,
+  electron,
   nodejs_22,
   yarn-berry_4,
   cacert,
@@ -26,15 +26,8 @@
 }:
 let
   hostPlatform = stdenvNoCC.hostPlatform;
-  nodePlatform = hostPlatform.parsed.kernel.name; # nodejs's `process.platform`
-  nodeArch = # nodejs's `process.arch`
-    {
-      "x86_64" = "x64";
-      "aarch64" = "arm64";
-    }
-    .${hostPlatform.parsed.cpu.name}
-      or (throw "affine(${buildType}): unsupported CPU family ${hostPlatform.parsed.cpu.name}");
-  electron = electron_35;
+  nodePlatform = hostPlatform.node.platform;
+  nodeArch = hostPlatform.node.arch;
   nodejs = nodejs_22;
   yarn-berry = yarn-berry_4.override { inherit nodejs; };
   productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
@@ -43,17 +36,17 @@ in
 stdenv.mkDerivation (finalAttrs: {
   pname = binName;
 
-  version = "0.22.4";
+  version = "0.25.1";
   src = fetchFromGitHub {
     owner = "toeverything";
     repo = "AFFiNE";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-IvVNnh8EDRSnIGeomLkO+I9fpbzrxC8jOStCh//RF8A=";
+    hash = "sha256-TrPyxXgrhzODyiamLU49vbIwDzau+jI9D8VWGa734x8=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-kAhT2yXFbUuV34ukdUmLQbO00LSaYk7gpsp0nmO138o=";
+    hash = "sha256-7btQd3i3rfJ3pJV7OXhSIz17Uy48D3OwrsXh/kls8Hc=";
   };
   yarnOfflineCache = stdenvNoCC.mkDerivation {
     name = "yarn-offline-cache";
@@ -98,7 +91,7 @@ stdenv.mkDerivation (finalAttrs: {
       '';
     dontInstall = true;
     outputHashMode = "recursive";
-    outputHash = "sha256-6Co65RkzLnk4U9ibiN0cO0bWRvbUHECzd+GQ8pwIxBE=";
+    outputHash = "sha256-cQFX49K27Q8pKRiZ+UqK4LIwfi3VEgZ7qS7N/rUj8rM=";
   };
 
   buildInputs = lib.optionals hostPlatform.isDarwin [
@@ -141,7 +134,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   configurePhase = ''
-    runHook preConfigurePhase
+    runHook preConfigure
 
     # cargo config
     mkdir -p .cargo
@@ -161,7 +154,7 @@ stdenv.mkDerivation (finalAttrs: {
     (cd $HOME/.electron-prebuilt-zip-tmp && zip --recurse-paths - .) > $ELECTRON_FORGE_ELECTRON_ZIP_DIR/electron-v$ELECTRON_VERSION_IN_LOCKFILE-${nodePlatform}-${nodeArch}.zip
     export ELECTRON_SKIP_BINARY_DOWNLOAD=1
 
-    runHook postConfigurePhase
+    runHook postConfigure
   '';
 
   buildPhase = ''

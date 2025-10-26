@@ -2,7 +2,6 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  fetchpatch,
   replaceVars,
   pkg-config,
   gnused,
@@ -37,17 +36,19 @@
   ntfs3g,
   nixosTests,
   udevCheckHook,
+  libiscsi,
+  libconfig,
 }:
 
 stdenv.mkDerivation rec {
   pname = "udisks";
-  version = "2.10.1";
+  version = "2.10.2";
 
   src = fetchFromGitHub {
     owner = "storaged-project";
     repo = "udisks";
     rev = "${pname}-${version}";
-    sha256 = "sha256-L8jr1+SJWsCizkPXC8VKDy2eVa7/FpqdB8SkBYq6vwc=";
+    sha256 = "sha256-W0vZY6tYxAJbqxNF3F6F6J6h6XxLT+Fon+LqR6jwFUQ=";
   };
 
   outputs = [
@@ -80,13 +81,6 @@ stdenv.mkDerivation rec {
         parted
         util-linux
       ];
-    })
-
-    # CVE-2025-6019: https://www.openwall.com/lists/oss-security/2025/06/17/5
-    (fetchpatch {
-      name = "CVE-2025-6019-2.patch";
-      url = "https://www.openwall.com/lists/oss-security/2025/06/17/5/2";
-      hash = "sha256-pgTA6yxQ1o9OU3qBeV1lh2O6mBkaUcc9md4uwFwz+AM=";
     })
   ];
 
@@ -122,6 +116,8 @@ stdenv.mkDerivation rec {
     libatasmart
     polkit
     util-linux
+    libiscsi
+    libconfig
   ];
 
   preConfigure = "NOCONFIGURE=1 ./autogen.sh";
@@ -133,6 +129,10 @@ stdenv.mkDerivation rec {
     "--with-systemdsystemunitdir=$(out)/etc/systemd/system"
     "--with-udevdir=$(out)/lib/udev"
     "--with-tmpfilesdir=no"
+    "--enable-all-modules"
+    "--enable-btrfs"
+    "--enable-lvm2"
+    "--enable-smart"
   ];
 
   makeFlags = [

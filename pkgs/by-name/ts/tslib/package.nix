@@ -17,6 +17,11 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-2YJDADh/WCksAEIjngAdji98YGmwjpvxSBZkxAwFc7k=";
   };
 
+  patches = [
+    # CMake 4 dropped support of versions lower than 3.5
+    ./tslib-1.23-cmake4.patch
+  ];
+
   nativeBuildInputs = [ cmake ];
 
   passthru.updateScript = nix-update-script { };
@@ -25,7 +30,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Touchscreen access library";
     homepage = "http://www.tslib.org/";
     license = lib.licenses.lgpl21;
-    platforms = lib.platforms.all;
+    platforms = lib.platforms.linux; # requires linux headers <linux/input.h>
     maintainers = with lib.maintainers; [ shogo ];
     teams = with lib.teams; [ ngi ];
   };

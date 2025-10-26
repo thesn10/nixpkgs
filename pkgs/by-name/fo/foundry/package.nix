@@ -11,18 +11,18 @@
   versionCheckHook,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "foundry";
-  version = "1.2.3";
+  version = "1.4.3";
 
   src = fetchFromGitHub {
     owner = "foundry-rs";
     repo = "foundry";
-    tag = "v${version}";
-    hash = "sha256-1mZsz0tCvf943WLk7J+AJfPSl/yc84qlvMaQwFhM2ss=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-SrkFfc9+cb3nDqEOj3gRkQq9aKOSfk3s7a3EGka5ACw=";
   };
 
-  cargoHash = "sha256-q0iNyGabqJJcxVLzU8CZpkxxSYOCfuc7ewiSQcQIzSY=";
+  cargoHash = "sha256-PoPfuMNeK6ArZddBd0lsR2r8UrvRieqkxYZ8jCCxw5o=";
 
   nativeBuildInputs = [
     pkg-config
@@ -57,15 +57,16 @@ rustPlatform.buildRustPackage rec {
   meta = {
     homepage = "https://github.com/foundry-rs/foundry";
     description = "Portable, modular toolkit for Ethereum application development written in Rust";
-    changelog = "https://github.com/foundry-rs/foundry/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/foundry-rs/foundry/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = with lib.licenses; [
       asl20
       mit
     ];
     maintainers = with lib.maintainers; [
+      beeb
       mitchmindtree
       msanft
     ];
     platforms = lib.platforms.unix;
   };
-}
+})

@@ -21,13 +21,13 @@
 }:
 stdenv.mkDerivation rec {
   pname = "ustreamer";
-  version = "6.31";
+  version = "6.40";
 
   src = fetchFromGitHub {
     owner = "pikvm";
     repo = "ustreamer";
-    rev = "v${version}";
-    hash = "sha256-SvvIY52FMO6Y4B6TOfk7dLtci4OayPX6+d8voKenKbQ=";
+    tag = "v${version}";
+    hash = "sha256-jKltFQsx8Q9+TMTOg1p6nljII72CLEg6VYe60/KojUY=";
   };
 
   buildInputs = [

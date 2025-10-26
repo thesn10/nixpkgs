@@ -64,7 +64,7 @@
 
 let
   pname = "ray";
-  version = "2.48.0";
+  version = "2.50.1";
 in
 buildPythonPackage rec {
   inherit pname version;
@@ -78,35 +78,28 @@ buildPythonPackage rec {
       platforms = {
         aarch64-darwin = "macosx_12_0_arm64";
         aarch64-linux = "manylinux2014_aarch64";
-        x86_64-darwin = "macosx_12_0_x86_64";
         x86_64-linux = "manylinux2014_x86_64";
       };
       # ./pkgs/development/python-modules/ray/prefetch.sh
       # Results are in ./ray-hashes.nix
       hashes = {
         x86_64-linux = {
-          cp310 = "sha256-ZJ7ZRC3C05E1xZO2zww46DVRcLkmcjZat6PLyVjEJjQ=";
-          cp311 = "sha256-RtS0KlhJLex5yq0tViNEaJpPmagoruqBGgzSzWU1U+8=";
-          cp312 = "sha256-pC7TtkD0tZmj/IBnyD7mBJfA8D0HDXp98Co4j6F6VGs=";
-          cp313 = "sha256-JeS3n8yPhJ1y2xrMTwPzcAjFwLdF32PYowzTVna2VF4=";
+          cp310 = "sha256-3qnMYOkt0IlokVZ1bm2ZyZ/j5JE0GA9xVDay41K134Y=";
+          cp311 = "sha256-hfR2u05mfarWUxjymjWxPW+qjgUwB5xmfVSMAMLZJeg=";
+          cp312 = "sha256-dciE4x1NwMOE1KS2jpYRF1tqy6hiI1K8q7cxkMufjD8=";
+          cp313 = "sha256-elJVS9VfKmGIr1b/5ce9l35A65e3tigtgnqNOnPweJo=";
         };
         aarch64-linux = {
-          cp310 = "sha256-+CCVC8RNewAMIjNC9cgAycCOf9iVJCARJTiOohHKrRo=";
-          cp311 = "sha256-JKcPQW7AvhS5dfFgBEgFzLSMxrxQ3mMpg+uPCo4WaCs=";
-          cp312 = "sha256-8c8z0mAxb5L3dVgYXxw2/DVQbXbuf9/tn1tw+cS9un8=";
-          cp313 = "sha256-Yi5rzbeNmAQNh76pTmXQu2zMCuG0MpTGvWn1Qr8o4JI=";
-        };
-        x86_64-darwin = {
-          cp310 = "sha256-M72kdTrQrNK1JMkVgInUNIbNRMxZ/pcEZkNbwpaP3i0=";
-          cp311 = "sha256-uUUA/i0X5JH+LpvUo79i3yF+IajyhFAzw1PU0uokD3M=";
-          cp312 = "sha256-Wm9XEm6sndMoYongfpHoewVHkvlpi298yriLYkgWtUI=";
-          cp313 = "sha256-V0K3KlFK/l1g9BMwIAzVCDduFsZQ9pYuYjN6pILWoMY=";
+          cp310 = "sha256-sGGBb4rtS8oLgRdNv/5xfGn7e8og79j3VWDTpvjMsoA=";
+          cp311 = "sha256-duHqpifhm3Bvoh5InLppLHFD19NYQzc7pxlB3vB6tYs=";
+          cp312 = "sha256-qEJP06Sh7zFKhfgMNh8i6b2UnHpj4jjPQXLcGVWxLHw=";
+          cp313 = "sha256-QMtWy4Kid51bJna3vNkR0PCnjSI0oVq7T5gkFbZRz8o=";
         };
         aarch64-darwin = {
-          cp310 = "sha256-bKK5zkWtNgy+KZaYL7Imkez+ZVPsj5eiVIKV8PlqrHg=";
-          cp311 = "sha256-S5uSrCljX1Ve80E0fZpj2/ArfZRjRyOa88CeNkvEXPg=";
-          cp312 = "sha256-jeeZ87CJb0jTBtXkoE/GA3oIxJXUX5x5k1NE5Wk+PPg=";
-          cp313 = "sha256-p6bYMNncWui7FW/N6aGtq39O2wBPA5GKck2IXs64Jk0=";
+          cp310 = "sha256-DuYbabBqy3dU9s0IcWCEzklfu9ljrrcs+00UUl0OCWk=";
+          cp311 = "sha256-uzP9gWhP6tSqtwa9iLCqJ7lGhJBr+1EeWcxXVohaP28=";
+          cp312 = "sha256-cj5WyBk/it3j7BiBerQ3rRzJ1Oct8SY+hWl74oLPxSY=";
+          cp313 = "sha256-JUolfcK6Q0mkeErx8gTE2BaZCOp3mi5dTehzEatfUl8=";
         };
       };
     in
@@ -233,7 +226,6 @@ buildPythonPackage rec {
     platforms = [
       "aarch64-darwin"
       "aarch64-linux"
-      "x86_64-darwin"
       "x86_64-linux"
     ];
   };

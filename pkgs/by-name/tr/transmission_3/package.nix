@@ -39,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "transmission";
     repo = "transmission";
-    rev = finalAttrs.version;
+    tag = finalAttrs.version;
     hash = "sha256-n4iEDt9AstDZPZXN47p13brNLbNWS3BTB+A4UuoEjzE=";
     fetchSubmodules = true;
   };
@@ -50,6 +50,15 @@ stdenv.mkDerivation (finalAttrs: {
     # fix build with miniupnpc 2.2.8
     ./transmission-3.00-miniupnpc-2.2.8.patch
   ];
+
+  # Compatibility with CMake < 3.5 has been removed from CMake.
+  postPatch = ''
+    substituteInPlace \
+      CMakeLists.txt \
+      --replace-fail \
+        "cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)" \
+        "cmake_minimum_required(VERSION 3.5)"
+  '';
 
   outputs = [
     "out"

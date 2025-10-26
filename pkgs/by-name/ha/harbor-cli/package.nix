@@ -4,22 +4,21 @@
   buildGoModule,
   fetchFromGitHub,
   testers,
-  harbor-cli,
   installShellFiles,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "harbor-cli";
-  version = "0.0.8";
+  version = "0.0.13";
 
   src = fetchFromGitHub {
     owner = "goharbor";
     repo = "harbor-cli";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-7Fi4FeWsLwTtNZhD8TfSBTMr/LKzUm6UO4aWC0eJFtQ=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-TVuWSbBPRXq9icfMXEg0wONaqD5S2ge5DQiDHSlrADk=";
   };
 
-  vendorHash = "sha256-gkPMyDX5CO7j6JX3AUNw9o/HApRwLHAd8mD25rq96Lk=";
+  vendorHash = "sha256-Pj573V6S2LaytQMK0jGVyLMX/GBZ1GOmYV/LPO1ScS4=";
 
   excludedPackages = [
     "dagger"
@@ -46,7 +45,7 @@ buildGoModule (finalAttrs: {
   '';
 
   passthru.tests.version = testers.testVersion {
-    package = harbor-cli;
+    package = finalAttrs.finalPackage;
     command = "HOME=\"$(mktemp -d)\" harbor version";
   };
 

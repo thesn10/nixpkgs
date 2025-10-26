@@ -21,14 +21,14 @@
 
 buildPythonPackage rec {
   pname = "narwhals";
-  version = "1.40.0";
+  version = "2.9.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "narwhals-dev";
     repo = "narwhals";
     tag = "v${version}";
-    hash = "sha256-cCgWKH4DzENTI1vwxOU+GRp/poUe55XqSPY8UHYy9PI=";
+    hash = "sha256-b+Y6MAt0E4XIAO7Ctr+2UDnVTkhPoN/C3WWolEPh/es=";
   };
 
   build-system = [ hatchling ];
@@ -68,6 +68,18 @@ buildPythonPackage rec {
     # Timezone issue
     "test_to_datetime"
     "test_unary_two_elements"
+    # Test requires pyspark binary
+    "test_datetime_w_tz_pyspark"
+    "test_convert_time_zone_to_connection_tz_pyspark"
+    "test_replace_time_zone_to_connection_tz_pyspark"
+    "test_lazy"
+    # Incompatible with ibis 11
+    "test_unique_3069"
+    # DuckDB 1.4.x compatibility - empty result schema handling with PyArrow
+    "test_skew_expr"
+    # ibis improvements cause strict XPASS failures (tests expected to fail now pass)
+    "test_empty_scalar_reduction_with_columns"
+    "test_collect_empty"
   ];
 
   pytestFlags = [

@@ -8,17 +8,17 @@
 
 php.buildComposerProject2 (finalAttrs: {
   pname = "drupal";
-  version = "11.2.1";
+  version = "11.2.5";
 
   src = fetchFromGitLab {
     domain = "git.drupalcode.org";
     owner = "project";
     repo = "drupal";
     tag = finalAttrs.version;
-    hash = "sha256-GlQvgI3dmRSHtNky0ZL4Y4VWIaUrO+EjPwnkkF9DJDQ=";
+    hash = "sha256-y6oKz9ldj1jP6VYIzw0iqVQM5bMOY5UOj7Yf2rUk2fc=";
   };
 
-  vendorHash = "sha256-2XqYxuIlnXzyvOYtY67H1hOuuFjApi0H5VV74j/RJzI=";
+  vendorHash = "sha256-sBzh772IRZ1e84s6iBsTHPK2qdtMP91UqHYpLIofqwM=";
   composerNoPlugins = false;
 
   passthru = {
@@ -27,10 +27,10 @@ php.buildComposerProject2 (finalAttrs: {
     };
     updateScript = writeScript "update.sh" ''
       #!/usr/bin/env nix-shell
-      #!nix-shell -i bash -p common-updater-scripts xmlstarlet
+      #!nix-shell -i bash -p nix-update xmlstarlet
       set -eu -o pipefail
       version=$(curl -k --silent --globoff "https://updates.drupal.org/release-history/drupal/current" | xmlstarlet sel -t -v "project/releases/release[1]/tag")
-      update-source-version drupal $version --file=./pkgs/by-name/dr/drupal/package.nix
+      nix-update drupal --version $version
     '';
   };
 
@@ -39,7 +39,6 @@ php.buildComposerProject2 (finalAttrs: {
     license = lib.licenses.mit;
     homepage = "https://drupal.org/";
     maintainers = with lib.maintainers; [
-      drupol
       OulipianSummer
     ];
     platforms = php.meta.platforms;

@@ -12,21 +12,18 @@
   pytest-aiohttp,
   pytest-freezegun,
   pytestCheckHook,
-  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "pylitterbot";
-  version = "2024.2.2";
+  version = "2024.2.6";
   pyproject = true;
-
-  disabled = pythonOlder "3.10";
 
   src = fetchFromGitHub {
     owner = "natekspencer";
     repo = "pylitterbot";
     tag = "v${version}";
-    hash = "sha256-FKBgvP3qXT3nKHn5R9pp4nYNX+mO4vfDi5fzQ5+y1Nc=";
+    hash = "sha256-oQuEo0np+e+HfsQoWbv84BNpxNJQO3ZjocaCfllqkts=";
   };
 
   pythonRelaxDeps = [ "deepdiff" ];
@@ -52,11 +49,11 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "pylitterbot" ];
 
-  meta = with lib; {
+  meta = {
     description = "Modulefor controlling a Litter-Robot";
     homepage = "https://github.com/natekspencer/pylitterbot";
     changelog = "https://github.com/natekspencer/pylitterbot/releases/tag/${src.tag}";
-    license = with licenses; [ mit ];
-    maintainers = with maintainers; [ fab ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ fab ];
   };
 }

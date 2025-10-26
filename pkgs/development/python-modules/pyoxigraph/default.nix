@@ -12,19 +12,19 @@
 buildPythonPackage rec {
   pname = "pyoxigraph";
   pyproject = true;
-  version = "0.4.9";
+  version = "0.5.1";
 
   src = fetchFromGitHub {
     owner = "oxigraph";
     repo = "oxigraph";
     tag = "v${version}";
     fetchSubmodules = true;
-    hash = "sha256-sv9LpAoPQ4oFrGI6j6NgVZwEwpM1wt93lHkUwnvmhIY=";
+    hash = "sha256-58PGRQlDziVENgm7OKPAzXXi4BkOJqytGCxxIXB2smc=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit pname version src;
-    hash = "sha256-nVlvmYOxZDMLvxP8JaKTyKMgW6+48B8B+UzlwgthJS0=";
+    hash = "sha256-GQ+7dyQ1LyYK8RYImsqVMEQvIC5pRQUVYYgO4FOShaE=";
   };
 
   buildAndTestSubdir = "python";

@@ -1,6 +1,6 @@
 {
   lib,
-  stdenv,
+  fetchpatch2,
   fetchFromGitHub,
   nix-update-script,
   telegram-desktop,
@@ -23,10 +23,19 @@ telegram-desktop.override {
         fetchSubmodules = true;
       };
 
+      # fix build failure with Qt 6.10
+      patches = fetchpatch2 {
+        name = "fix-build-with-qt-610.patch";
+        url = "https://github.com/desktop-app/cmake_helpers/commit/682f1b57.patch";
+        hash = "sha256-DHwgxAEFc1byQkVvrPwyctQKvUsK/KQ/cnzRv6PQuTM=";
+        stripLen = 1;
+        extraPrefix = "cmake/";
+      };
+
       passthru.updateScript = nix-update-script { };
 
       meta = previousAttrs.meta // {
-        mainProgram = if stdenv.hostPlatform.isLinux then "ayugram-desktop" else "AyuGram";
+        mainProgram = "AyuGram";
         description = "Desktop Telegram client with good customization and Ghost mode";
         longDescription = ''
           The best that could be in the world of Telegram clients.
