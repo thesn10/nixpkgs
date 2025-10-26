@@ -36,15 +36,15 @@
 
 stdenv.mkDerivation rec {
   pname = "gpac";
-  version = if releaseChannel == "nightly" then "2.4-unstable-2025-07-11" else "2.4.0";
+  version = if releaseChannel == "nightly" then "2.4-unstable-2025-09-07" else "2.4.0";
 
   src =
     if releaseChannel == "nightly" then
       fetchFromGitHub {
         owner = "gpac";
         repo = "gpac";
-        rev = "fe88c3545aadd597b250ccf23271d5d3de50ccc8";
-        hash = "sha256-c6B9Y19ZZ3PLz82GCcjkWzcUQSEK7ufVNEzqHQqOvrI=";
+        rev = "50b5741f291126b610c59db433fc02e8a17f0c5d";
+        hash = "sha256-bmwrMfmaqQBhU3yxKCaMThtsJY+Rghf095GesiyHCo0=";
       }
     else
       fetchFromGitHub {
